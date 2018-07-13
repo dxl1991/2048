@@ -112,8 +112,31 @@ function calculate(direction){
             if (grids[m][j].num != 0){
                break
             }
-            if(m == 0){
+            if (m == 0 || (grids[m - 1][j].num != 0 && grids[m - 1][j].num != grids[i][j].num)){
               grids[m][j].num = grids[i][j].num
+              grids[i][j].num = 0
+            }
+          }
+        }
+      }
+    }
+  }
+  if (direction == "左") {
+    for (var i = 0; i < grids.length; i++) {
+      for (var j = 1; j < grids[i].length; j++) {
+        if (grids[i][j].num == 0) {
+          continue
+        }
+        for (var m = j - 1; m >= 0; m--) {
+          if (grids[i][j].num == grids[i][m].num) {
+            grids[i][m].num = grids[i][m].num * 2
+            grids[i][j].num = 0
+          } else {
+            if (grids[i][m].num != 0) {
+              break
+            }
+            if (m == 0 || (grids[i][m-1].num != 0 && grids[i][m-1].num != grids[i][j].num)) {
+              grids[i][m].num = grids[i][j].num
               grids[i][j].num = 0
             }
           }
@@ -135,8 +158,31 @@ function calculate(direction){
             if (grids[m][j].num != 0) {
               break
             }
-            if (m == grids.length - 1) {
+            if (m == grids.length - 1 || (grids[m + 1][j].num != 0 && grids[m + 1][j].num != grids[i][j].num)) {
               grids[m][j].num = grids[i][j].num
+              grids[i][j].num = 0
+            }
+          }
+        }
+      }
+    }
+  }
+  if (direction == "右") {
+    for (var i = grids.length - 1; i >= 0; i--) {
+      for (var j = grids[i].length - 2; j >= 0; j--) {
+        if (grids[i][j].num == 0) {
+          continue
+        }
+        for (var m = j + 1; m < grids[i].length; m++) {
+          if (grids[i][j].num == grids[i][m].num) {
+            grids[i][m].num = grids[i][m].num * 2
+            grids[i][j].num = 0
+          } else {
+            if (grids[i][m].num != 0) {
+              break
+            }
+            if (m == grids[i].length - 1 || (grids[i][m + 1].num != 0 && grids[i][m + 1].num != grids[i][j].num)) {
+              grids[i][m].num = grids[i][j].num
               grids[i][j].num = 0
             }
           }
