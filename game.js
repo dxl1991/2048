@@ -42,15 +42,13 @@ function touchEndEventHandler(e) {
   // console.log("点击结束")
   // console.log(e)
 
-  context.clearRect(0, 0, canvas.width, canvas.height)
-
   let x = e.changedTouches[0].clientX
   let y = e.changedTouches[0].clientY
   var spaceX = x - startX
   var spaceY = y - startY
   var direction = "无效"
   if (Math.abs(spaceX) <= 20 && Math.abs(spaceY) <= 20){
-     
+     return
   }else{
     if (Math.abs(spaceX) > Math.abs(spaceY)) {
       if (spaceX > 0) {
@@ -66,17 +64,20 @@ function touchEndEventHandler(e) {
       }
     }
   }
+  context.clearRect(0, 0, canvas.width, canvas.height)
+  calculate(direction)
+  randomNum()
   for (var i = 0; i < grids.length; i++) {
     for(var j=0;j<grids[i].length;j++){
         grids[i][j].update(context)
     }
   }
-  context.fillStyle = color[colorIndex++]
-  context.fillText(
-    direction,
-    x,
-    y
-  )
+  // context.fillStyle = color[colorIndex++]
+  // context.fillText(
+  //   direction,
+  //   x,
+  //   y
+  // )
 
 }
 wx.onTouchEnd(touchEndEventHandler)
@@ -84,9 +85,80 @@ var grids = [[new grid(context, 0), new grid(context, 1), new grid(context, 2), 
   [new grid(context, 4), new grid(context, 5), new grid(context, 6), new grid(context, 7)],
   [new grid(context, 8), new grid(context, 9), new grid(context, 10), new grid(context, 11)],
   [new grid(context, 12), new grid(context, 13), new grid(context, 14), new grid(context, 15)]]
+initGrid()
 
+function initGrid(){
+  randomNum()
+  randomNum()
+  for (var i = 0; i < grids.length; i++) {
+    for (var j = 0; j < grids[i].length; j++) {
+      grids[i][j].update(context)
+    }
+  }
+}
 
-function update(direction){
-  Math.floor(Math.random() * (15 - 0 + 1) + 0);
+function calculate(direction){
+  if(direction == "上"){
+    for (var i = 1; i < grids.length; i++) {
+      for (var j = 0; j < grids[i].length; j++) {
+        if (grids[i][j].num == 0){
+           continue
+        }
+        for(var m = i - 1;m >= 0; m--){
+          if (grids[i][j].num == grids[m][j].num){
+            grids[m][j].num = grids[m][j].num * 2
+            grids[i][j].num = 0
+          }else{
+            if (grids[m][j].num != 0){
+               break
+            }
+            if(m == 0){
+              grids[m][j].num = grids[i][j].num
+              grids[i][j].num = 0
+            }
+          }
+        }
+      }
+    }
+  }
+  if (direction == "下") {
+    for (var i = grids.length - 2; i >= 0; i--) {
+      for (var j = 0; j < grids[i].length; j++) {
+        if (grids[i][j].num == 0) {
+          continue
+        }
+        for (var m = i + 1; m < grids.length; m++) {
+          if (grids[i][j].num == grids[m][j].num) {
+            grids[m][j].num = grids[m][j].num * 2
+            grids[i][j].num = 0
+          } else {
+            if (grids[m][j].num != 0) {
+              break
+            }
+            if (m == grids.length - 1) {
+              grids[m][j].num = grids[i][j].num
+              grids[i][j].num = 0
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function randomNum(){
+  var temp = new Array()
+  var index = 0
+  for (var i = 0; i < grids.length; i++) {
+    for (var j = 0; j < grids[i].length; j++) {
+      if (grids[i][j].num == 0) {
+        temp[index++] = grids[i][j]
+      }
+    }
+  }
+  if (temp.length > 0) {
+    var i = Math.floor(Math.random() * temp.length);
+    temp[i].num = 2
+  }
 }
 

@@ -6,10 +6,10 @@ const rectLength = space * 4;
 export default class Sprite {
   constructor(ctx,index) {
     this.index = index
-    this.num = index
+    this.num = 0
     this.x = space + (index % 4) * (space + rectLength)
     this.y = 150 + space + (Math.floor(index / 4)) * (space + rectLength)
-    this.update(ctx)
+    // this.update(ctx)
   }
 
   update(ctx){
