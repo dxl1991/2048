@@ -1,16 +1,13 @@
+import 'weapp-adapter'
 import grid from 'grid'
 
 const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
-var canvas = wx.createCanvas()
-console.log(canvas.width,canvas.height)
+// var canvas = wx.createCanvas()
+// console.log(canvas.width,canvas.height)
 var colorIndex = 0
-var color = new Array("#0F0", "#0F2", "#0F4", "#0F6", "#0F8", "#0FA", "#0FC", "#0FE", "#0FF", "#0FE", "#0FC", "#0FA", "#0F8", "#0F6", "#0F4", "#0F2");
+var color = new Array("#0F0", "#0F2", "#0F4", "#0F6", "#0F8", "#0FA", "#0FC", "#0FE", "#0FF", "#0FE", "#0FC", "#0FA", "#0F8", "#0F6", "#0F4", "#0F2")
 let context = canvas.getContext('2d')
-context.fillStyle = 'red'
-context.fillRect(0, 0, 100, 100)
-context.fillStyle = 'white'
-context.fillRect(20, 20, 60, 60)
 var startX = 0
 var startY = 0
 
@@ -65,6 +62,7 @@ function touchEndEventHandler(e) {
     }
   }
   context.clearRect(0, 0, canvas.width, canvas.height)
+  drawBg()
   calculate(direction)
   randomNum()
   for (var i = 0; i < grids.length; i++) {
@@ -88,6 +86,7 @@ var grids = [[new grid(context, 0), new grid(context, 1), new grid(context, 2), 
 initGrid()
 
 function initGrid(){
+  drawBg()
   randomNum()
   randomNum()
   for (var i = 0; i < grids.length; i++) {
@@ -206,5 +205,10 @@ function randomNum(){
     var i = Math.floor(Math.random() * temp.length);
     temp[i].num = 2
   }
+}
+
+function drawBg() {
+context.fillStyle = '#DAA520'
+context.fillRect(0, 0, screenWidth, screenHeight)
 }
 
