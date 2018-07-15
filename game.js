@@ -1,15 +1,23 @@
 import 'weapp-adapter'
 import grid from 'grid'
+import rank from 'rank'
+import Music from 'music'
 
 const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
 // var canvas = wx.createCanvas()
 // console.log(canvas.width,canvas.height)
 var colorIndex = 0
-var color = new Array("#0F0", "#0F2", "#0F4", "#0F6", "#0F8", "#0FA", "#0FC", "#0FE", "#0FF", "#0FE", "#0FC", "#0FA", "#0F8", "#0F6", "#0F4", "#0F2")
+var grids = [[new grid(context, 0), new grid(context, 1), new grid(context, 2), new grid(context, 3)],
+[new grid(context, 4), new grid(context, 5), new grid(context, 6), new grid(context, 7)],
+[new grid(context, 8), new grid(context, 9), new grid(context, 10), new grid(context, 11)],
+[new grid(context, 12), new grid(context, 13), new grid(context, 14), new grid(context, 15)]]
 let context = canvas.getContext('2d')
 var startX = 0
 var startY = 0
+var score = 0
+var gameover = false
+var music = new Music()
 
 // var image = wx.createImage()
 // image.src = "images/exp1.png"
@@ -17,16 +25,8 @@ var startY = 0
 //   console.log(image.width, image.height)
 //   context.drawImage(image, 0, 0, screenWidth, screenHeight)
 // }
-context.fillStyle = 'yellow'
-context.font = "20px Arial"
-context.fillText(
-  '2048',
-  screenWidth / 2 - 40,
-  50
-)
+
 function touchEventHandler(e) {
-  // console.log("点击")
-  // console.log(e)
   startX = e.touches[0].clientX
   startY = e.touches[0].clientY
 }
@@ -36,9 +36,10 @@ wx.onTouchStart(touchEventHandler)
 // canvas.addEventListener('touchstart', touchHandler)
 
 function touchEndEventHandler(e) {
-  // console.log("点击结束")
-  // console.log(e)
-
+  if (gameover) {
+    initGrid()
+    return
+  }
   let x = e.changedTouches[0].clientX
   let y = e.changedTouches[0].clientY
   var spaceX = x - startX
@@ -64,29 +65,54 @@ function touchEndEventHandler(e) {
   context.clearRect(0, 0, canvas.width, canvas.height)
   drawBg()
   calculate(direction)
+  drawScore()
   randomNum()
+  var full = true
   for (var i = 0; i < grids.length; i++) {
     for(var j=0;j<grids[i].length;j++){
         grids[i][j].update(context)
+        if (grids[i][j].num == 0){
+          full = false
+        }
     }
   }
-  // context.fillStyle = color[colorIndex++]
-  // context.fillText(
-  //   direction,
-  //   x,
-  //   y
-  // )
-
+  wx.setUserCloudStorage({
+    KVDataList: [{ key: 'score', value: ""+score }],
+    success: res => {
+      console.log("chenggong");
+      console.log(res);
+      // 让子域更新当前用户的最高分，因为主域无法得到getUserCloadStorage;
+      let openDataContext = wx.getOpenDataContext();
+      openDataContext.postMessage({
+        type: 'updateMaxScore',
+      });
+    },
+    fail: res => {
+      console.log("shibai");
+      console.log(res);
+    }
+  });
+  music.playShoot()
+  if(full){
+    checkGameOver()
+  }
+  if(gameover){
+    drawGameOver()
+  }
 }
 wx.onTouchEnd(touchEndEventHandler)
-var grids = [[new grid(context, 0), new grid(context, 1), new grid(context, 2), new grid(context, 3)],
-  [new grid(context, 4), new grid(context, 5), new grid(context, 6), new grid(context, 7)],
-  [new grid(context, 8), new grid(context, 9), new grid(context, 10), new grid(context, 11)],
-  [new grid(context, 12), new grid(context, 13), new grid(context, 14), new grid(context, 15)]]
 initGrid()
 
 function initGrid(){
+  gameover = false
+  score = 0
+  for (var i = 0; i < grids.length; i++) {
+    for (var j = 0; j < grids[i].length; j++) {
+      grids[i][j].num = 0
+    }
+  }
   drawBg()
+  drawScore()
   randomNum()
   randomNum()
   for (var i = 0; i < grids.length; i++) {
@@ -107,6 +133,7 @@ function calculate(direction){
           if (grids[i][j].num == grids[m][j].num){
             grids[m][j].num = grids[m][j].num * 2
             grids[i][j].num = 0
+            score += 2
           }else{
             if (grids[m][j].num != 0){
                break
@@ -130,6 +157,7 @@ function calculate(direction){
           if (grids[i][j].num == grids[i][m].num) {
             grids[i][m].num = grids[i][m].num * 2
             grids[i][j].num = 0
+            score += 2
           } else {
             if (grids[i][m].num != 0) {
               break
@@ -153,6 +181,7 @@ function calculate(direction){
           if (grids[i][j].num == grids[m][j].num) {
             grids[m][j].num = grids[m][j].num * 2
             grids[i][j].num = 0
+            score += 2
           } else {
             if (grids[m][j].num != 0) {
               break
@@ -176,6 +205,7 @@ function calculate(direction){
           if (grids[i][j].num == grids[i][m].num) {
             grids[i][m].num = grids[i][m].num * 2
             grids[i][j].num = 0
+            score += 2
           } else {
             if (grids[i][m].num != 0) {
               break
@@ -203,12 +233,66 @@ function randomNum(){
   }
   if (temp.length > 0) {
     var i = Math.floor(Math.random() * temp.length);
-    temp[i].num = 2
+    // if(i % 2 == 0){
+      temp[i].num = 2
+    // }else{
+    //   temp[i].num = 4
+    // }
   }
 }
 
 function drawBg() {
-context.fillStyle = '#DAA520'
-context.fillRect(0, 0, screenWidth, screenHeight)
+  context.fillStyle = '#FFEBCD'
+  context.fillRect(0, 0, screenWidth, screenHeight)
+  context.fillStyle = '#FFDEAD'
+  var y = 4*window.space + (4 * (window.space + window.rectLength))
+  context.fillRect(15, 190 + window.space , screenWidth - 33, y - 20)
+}
+function drawScore() {
+  context.font = "bold 40px Arial"
+  context.fillStyle = 'black'
+  context.fillText(
+    "score: " + score,
+    30,
+    120
+  )
+}
+// drawGameOver()
+function drawGameOver(){
+  context.fillStyle = '#ADD8E6'
+  context.fillStyle = "rgba(0,0,0,0.7)"
+  context.fillRect(0, 0, screenWidth, screenHeight)
+
+  context.font = "bold 50px 宋体"
+  context.fillStyle = '#FF0000'
+  context.fillText(
+    "游戏结束",
+    screenWidth / 4,
+    screenHeight / 2
+  )
+}
+
+function checkGameOver() {
+    for (var i = 0; i < grids.length; i++) {
+      for (var j = 0; j < grids[i].length; j++) {
+        if (i - 1 >= 0 && grids[i - 1][j].num == grids[i][j].num) {
+          gameover = false
+          return
+        }
+        if (j + 1 < grids[i].length && grids[i][j + 1].num == grids[i][j].num) {
+          gameover = false
+          return
+        }
+        if (i + 1 < grids.length && grids[i + 1][j].num == grids[i][j].num) {
+          gameover = false
+          return
+        }
+        if (j + 1 < grids[i].length && grids[i][j + 1].num == grids[i][j].num) {
+          gameover = false
+          return
+        }
+      }
+    }
+    gameover = true
 }
 
