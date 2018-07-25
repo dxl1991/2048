@@ -15,29 +15,39 @@ export default class Sprite {
   update(ctx){
     this.setColor(ctx)
     ctx.fillRect(this.x, this.y, rectLength, rectLength)
-    ctx.font = "bold 40px Arial"
-    ctx.fillStyle = '#696969'
     if(this.num > 0){
-      var tempx = this.x + rectLength / 3
-      if(this.num > 10){
-        tempx = this.x + rectLength / 5
-      }
-      if (this.num > 100) {
-        tempx = this.x + rectLength / 10
-        ctx.font = "bold 35px Arial"
-      }
-      if (this.num > 1000) {
-        tempx = this.x
-        ctx.font = "bold 30px Arial"
-      }
-      
-      ctx.fillText(
-        this.num,
-        tempx,
-        this.y + rectLength / 2 + 15
-      )
+      var image = wx.createImage()
+      image.src = "images/"+this.num+".png"
+      ctx.drawImage(image, this.x, this.y, rectLength, rectLength)
     }
   }
+
+  // update(ctx){
+  //   this.setColor(ctx)
+  //   ctx.fillRect(this.x, this.y, rectLength, rectLength)
+  //   ctx.font = "bold 40px Arial"
+  //   ctx.fillStyle = '#696969'
+  //   if(this.num > 0){
+  //     var tempx = this.x + rectLength / 3
+  //     if(this.num > 10){
+  //       tempx = this.x + rectLength / 5
+  //     }
+  //     if (this.num > 100) {
+  //       tempx = this.x + rectLength / 10
+  //       ctx.font = "bold 35px Arial"
+  //     }
+  //     if (this.num > 1000) {
+  //       tempx = this.x
+  //       ctx.font = "bold 30px Arial"
+  //     }
+      
+  //     ctx.fillText(
+  //       this.num,
+  //       tempx,
+  //       this.y + rectLength / 2 + 15
+  //     )
+  //   }
+  // }
 
   setColor(ctx){
     // if (this.num == 0) {
